@@ -1,0 +1,159 @@
+<div><!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Fake Executor</title>
+
+<style>
+    .python-output {
+        background: #f0f0f0;
+        padding: 6px;
+        margin: 4px 0;
+        border-left: 3px solid #444;
+        font-family: monospace;
+        display: inline-block;
+    }
+    h1 { text-align:center; color:blue; }
+    p  { text-align:center; color:green; }
+    h4 { text-align:center; color:orange; }
+    h3 { text-align:center; color:red; }
+</style>
+</head>
+
+<body>
+
+<div id="conteudo">
+<h1>A Maria a fazer a tabuada dos 5</h1>
+
+<p>
+<img src="https://agendaespiritabrasil.com.br/wp-content/uploads/2021/02/Maria-de-Nazare.jpg" width="350" height="300"><br>
+
+5*1:5*2:5*3:5*4:5*5:5*6:5*7:5*8:5*9:5*10:<br>
+RESULTADO<br>
+
+<python>
+print(5*1)
+print(5*2)
+print(5*3)
+print(5*4)
+print(5*5)
+print(5*6)
+print(5*7)
+print(5*8)
+print(5*9)
+print(5*10)
+</python>
+
+<h3>
+A música favorita da mãe sagrada. Maria!<br>
+<iframe width="469" height="428"
+src="https://www.youtube.com/embed/8tE0GjSQpes?list=RD8tE0GjSQpes"
+title="ABBA - The Winner Takes It All (1980)"
+frameborder="0"
+allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+referrerpolicy="strict-origin-when-cross-origin"
+allowfullscreen></iframe>
+</h3>
+</p>
+</div>
+
+<div id="conteudo1">
+<h4>
+Verso do agora<br>
+Simples crescer<br>
+neste eterno dizer<br>
+Simples é saber<br>
+Em interior de amor<br>
+
+<python>
+print("RESPOSTA DO VERSO<br>")
+print("Estar em casa no colo da mãe. No sempre escrever quando aprendemos alma em Deus fé")
+</python>
+
+</h4>
+</div>
+
+<div id="conteudo2">
+<h2>
+<python>
+print("vamos ser felizes<br>")
+ano = 2025
+nasc = 1964
+print(ano - nasc)
+
+print(23*453*34)
+a = 345/456
+print(a)
+</python>
+</h2>
+</div>
+
+
+
+<script>
+// Python Fake com variáveis simples
+function executarPythonFake(texto) {
+    const regexPythonTag = /<python>([\s\S]*?)<\/python>/g;
+
+    texto = texto.replace(regexPythonTag, (match, code) => {
+        const linhas = code.trim().split("\n");
+        let saida = "";
+        let vars = {}; // Variáveis simples
+
+        for (let linha of linhas) {
+            linha = linha.trim();
+            if (linha === "") continue;
+
+            // Variáveis: x = 5
+            if (linha.includes("=") && !linha.startsWith("print(")) {
+                const [nome, valor] = linha.split("=").map(s => s.trim());
+                try {
+                    vars[nome] = eval(valor);
+                } catch {
+                    return "[ERRO ao definir variável]";
+                }
+                continue;
+            }
+
+            // Apenas print()
+            if (!linha.startsWith("print(") || !linha.endsWith(")")) {
+                return "[ERRO: apenas print() ou variáveis simples são permitidos]";
+            }
+
+            let conteudo = linha.slice(6, -1);
+
+            // Substituir variáveis
+            for (let v in vars) {
+                const regexVar = new RegExp("\\b" + v + "\\b", "g");
+                conteudo = conteudo.replace(regexVar, vars[v]);
+            }
+
+            try {
+                const resultado = eval(conteudo);
+                saida += resultado + "<br>";
+            } catch {
+                return "[ERRO ao interpretar print()]";
+            }
+        }
+
+        return `<span class="python-output">${saida.trim()}</span>`;
+    });
+
+    return texto;
+}
+
+// Processar automaticamente
+window.onload = () => {
+    document.querySelectorAll("div[id^='conteudo']").forEach(div => {
+        div.innerHTML = executarPythonFake(div.innerHTML);
+    });
+
+    document.querySelectorAll("div.conteudo").forEach(div => {
+        div.innerHTML = executarPythonFake(div.innerHTML);
+    });
+};
+</script>
+
+</body>
+</html></div>
