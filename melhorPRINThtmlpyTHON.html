@@ -8,32 +8,24 @@
 <style>
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
     background: #fafafa;
 }
 
 .python-output {
     background: #f0f0f0;
-    padding: 6px;
-    margin: 4px 0;
-    border-left: 3px solid #444;
+    padding: 8px;
+    margin: 8px 0;
+    border-left: 4px solid #1e90ff;
     font-family: monospace;
-    display: inline-block;
+    white-space: pre-wrap;
+    color: #1e90ff; /* AZUL */
 }
 
-h1{text-align:center; color:#8B008B; padding: 10px;}
-h3{text-align:center; color:#00008B;}
-p{text-align:center; color:#006400;}
-h4{text-align:center; color:red;}
+h1 { text-align:center; color:#8B008B; }
+h3 { text-align:center; color:#00008B; }
+h4 { text-align:center; color:red; }
 
-img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-}
-
-#conteudo, #conteudo1 {
+div[id^="conteudo"] {
     padding: 15px;
     margin: auto;
     max-width: 600px;
@@ -46,102 +38,124 @@ img {
 <h1>Jogar há poesia.</h1>
 
 <div id="conteudo">
-<h3>Poesia na hora por a criança infância.<br>
-<img src="https://img.freepik.com/fotos-premium/crianca-astronomo-com-oculos-olhando-para-as-estrelas-crianca-explorando-o-ceu-escuro-estrelado-gerar-ai_98402-106651.jpg"><br>
-
-<p>
-VERSO DA CRIANÇA<br><br>
-Criemos o começar<br>
-sempre em coração brilhar<br>
-Amor! Estranha forma de amar<br>
-num tanto acontecer.<br><br>
-Sou criança deixai-me libertar<br>
-ser livre.<br>
-Apenas Deus amar.<br>
-</p>
-
-<img src="https://tse1.mm.bing.net/th/id/OIP.QOUkNGECUe_xpS-KumUs5AHaLH?w=880&h=1321&rs=1&pid=ImgDetMain&o=7&rm=3"><br>
-
-<br>Dialogo de infância<br>
-</h3>
+<h3>Poesia da infância</h3>
 </div>
 
 <div id="conteudo1">
-<h4>
 <python>
 print("Como foi a tua infância?<br>")
 print("Simples e feliz<br>")
-print("Que idade tens?<br>")
-print("Nasci em 1989<br>")
-b = 2025 - 1989
+ano = 1989
+idade = 2025 - ano
+print("Idade:")
+print(idade)
+print("anos")
+</python>
+</div>
+
+<div id="conteudo2">
+<python>
+print("Outro bloco Python<br>")
+x = 10
+y = 5
+print(x)
+print(y)
+</python>
+</div>
+
+<div id="conteudo3">
+<python>
+print("A Maria tem ")
+b = (23 * 2)
 print(b)
 print("anos")
 </python>
-</h4>
+</div>
+
+<div id="conteudo4">
+<python>
+print("vamos criar amor ")
+print("vamos ser felizes")
+a = (23 * 2 *45)
+print(a)
+print("anos")
+</python>
 </div>
 
 <script>
-// Python Fake reforçado e estável
-function executarPythonFake(texto) {
-    const regexPythonTag = /<python>([\s\S]*?)<\/python>/g;
+function executarPythonFake(html) {
 
-    texto = texto.replace(regexPythonTag, (match, code) => {
-        const linhas = code.split("\n");
+    return html.replace(/<python>([\s\S]*?)<\/python>/g, function (_, codigo) {
+
+        const linhas = codigo.split(/\r?\n/);
+        const vars = {};
         let saida = "";
-        let vars = {};
 
         for (let linha of linhas) {
             linha = linha.trim();
             if (linha === "") continue;
 
-            // Variáveis simples
-            if (linha.includes("=") && !linha.startsWith("print")) {
-                const partes = linha.split("=");
-                if (partes.length !== 2) return "[ERRO ao definir variável]";
-                const nome = partes[0].trim();
-                const valor = partes[1].trim();
+            // ATRIBUIÇÃO: nome = expressão matemática
+            if (/^[a-zA-Z_]\w*\s*=/.test(linha)) {
+                let partes = linha.split("=");
+                let nome = partes.shift().trim();
+                let expr = partes.join("=").trim();
+
+                // substituir variáveis conhecidas
+                expr = expr.replace(/[a-zA-Z_]\w*/g, v => {
+                    if (vars.hasOwnProperty(v)) return vars[v];
+                    return v;
+                });
+
+                // validar expressão (números, operadores e parênteses)
+                if (!/^[0-9+\-*/().\s]+$/.test(expr)) {
+                    return `<div class="python-output">[ERRO NA EXPRESSÃO]</div>`;
+                }
 
                 try {
-                    vars[nome] = eval(valor);
+                    vars[nome] = Function("return (" + expr + ")")();
                 } catch {
-                    return "[ERRO ao definir variável]";
+                    return `<div class="python-output">[ERRO AO CALCULAR]</div>`;
                 }
+
                 continue;
             }
 
-            // Apenas print()
-            if (!linha.startsWith("print(") || !linha.endsWith(")")) {
-                return "[ERRO: apenas print() ou variáveis simples são permitidos]";
+            // PRINT
+            if (/^print\s*\(.+\)$/.test(linha)) {
+                let conteudo = linha.replace(/^print\s*\(|\)$/g, "").trim();
+
+                // string literal
+                if (
+                    (conteudo.startsWith('"') && conteudo.endsWith('"')) ||
+                    (conteudo.startsWith("'") && conteudo.endsWith("'"))
+                ) {
+                    saida += conteudo.slice(1, -1);
+                }
+                // variável
+                else if (vars.hasOwnProperty(conteudo)) {
+                    saida += vars[conteudo];
+                }
+                else {
+                    return `<div class="python-output">[ERRO NO PRINT]</div>`;
+                }
+
+                saida += "\n";
+                continue;
             }
 
-            let conteudo = linha.slice(6, -1).trim();
-
-            // Substituir variáveis
-            for (let v in vars) {
-                const regexVar = new RegExp("\\b" + v + "\\b", "g");
-                conteudo = conteudo.replace(regexVar, vars[v]);
-            }
-
-            try {
-                const resultado = eval(conteudo);
-                saida += resultado + "<br>";
-            } catch {
-                return "[ERRO ao interpretar print()]";
-            }
+            return `<div class="python-output">[COMANDO NÃO SUPORTADO]</div>`;
         }
 
-        return `<span class="python-output">${saida.trim()}</span>`;
+        return `<div class="python-output">${saida}</div>`;
     });
-
-    return texto;
 }
 
-// Processar automaticamente
-window.onload = () => {
+window.addEventListener("load", () => {
     document.querySelectorAll("div[id^='conteudo']").forEach(div => {
         div.innerHTML = executarPythonFake(div.innerHTML);
     });
-};
+});
 </script>
 
 </body>
