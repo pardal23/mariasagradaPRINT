@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cegonha OS Engine 2026</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #fafafa;
+}
+
+.cegonha-output {
+    background: #f0f0f0;
+    padding: 12px;
+    margin: 8px 0;
+    border-left: 4px solid #8B008B; /* Roxo da Cegonha */
+    font-family: monospace;
+    white-space: pre-wrap;
+    color: #8B008B; 
+}
+
+h1 { text-align:center; color:#8B008B; }
+h3 { text-align:center; color:#00008B; }
+
+div[id^="conteudo"] {
+    padding: 15px;
+    margin: auto;
+    max-width: 600px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Jogar há poesia.</h1>
+
+<div id="conteudo">
+<h3>Poesia da infância</h3>
+</div>
+
+<div id="conteudo1">
+<cegonha>
+cegonha("Como foi a tua infância?<br>")
+cegonha("Simples e feliz<br>")
+ano = 1989
+idade = 2026 - ano
+cegonha("Idade:")
+cegonha(idade)
+cegonha("anos")
+</cegonha>
+</div>
+
+<div id="conteudo4">
+<cegonha>
+cegonha("vamos criar amor ")
+cegonha("vamos ser felizes<br>")
+a = (23 * 2 * 45)
+cegonha(a)
+cegonha(" anos<br>")
+a = 23*34/8
+cegonha("resultado: ")
+cegonha(a)
+cegonha("<br>seja feliz por favor<br>")
+cegonha("a cegonha tem: ")
+# CONTA DIRETA DENTRO DA FUNÇÃO:
+cegonha(2026 - 1964)
+cegonha(" anos")
+</cegonha>
+<p><iframe width="569" height="428" src="https://www.youtube.com/embed/8tE0GjSQpes?list=RD8tE0GjSQpes" title="ABBA - The Winner Takes It All (1980)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></p>
+<cegonha>
+cegonha(23+23/2)
+cegonha("seja feliz por favor")
+</cegonha>
+</div>
+
+<script>
+/**
+ * MOTOR CEGONHA 2026 - Versão Fortalecida
+ */
+function executarCegonhaEngine(html) {
+
+    return html.replace(/<cegonha>([\s\S]*?)<\/cegonha>/g, function (_, codigo) {
+
+        const linhas = codigo.split(/\r?\n/);
+        const vars = {};
+        let saida = "";
+
+        // Função interna para processar substituições de variáveis em expressões
+        function processarExpressao(expr) {
+            let resultado = expr;
+            // Substituir variáveis conhecidas por seus valores
+            for (let v in vars) {
+                const regex = new RegExp("\\b" + v + "\\b", "g");
+                resultado = resultado.replace(regex, vars[v]);
+            }
+            return resultado;
+        }
+
+        for (let linha of linhas) {
+            linha = linha.trim();
+            if (linha === "" || linha.startsWith("#")) continue;
+
+            // 1. ATRIBUIÇÃO: var = conta
+            if (/^[a-zA-Z_]\w*\s*=/.test(linha)) {
+                let partes = linha.split("=");
+                let nome = partes.shift().trim();
+                let expr = processarExpressao(partes.join("=").trim());
+
+                try {
+                    // Executa a conta matemática real
+                    vars[nome] = new Function("return (" + expr + ")")();
+                } catch {
+                    return `<div class="cegonha-output">[ERRO AO CALCULAR: ${nome}]</div>`;
+                }
+                continue;
+            }
+
+            // 2. FUNÇÃO CEGONHA(): Aceita texto ou contas diretas
+            if (/^cegonha\s*\(.+\)$/.test(linha)) {
+                let conteudo = linha.replace(/^cegonha\s*\(|\)$/g, "").trim();
+
+                // Caso A: É uma string literal "texto"
+                if ((conteudo.startsWith('"') && conteudo.endsWith('"')) || 
+                    (conteudo.startsWith("'") && conteudo.endsWith("'"))) {
+                    saida += conteudo.slice(1, -1);
+                } 
+                // Caso B: É uma variável ou uma conta direta (ex: 2026-1964)
+                else {
+                    let exprFinal = processarExpressao(conteudo);
+                    try {
+                        // O motor tenta calcular o que está dentro do parêntese
+                        saida += new Function("return (" + exprFinal + ")")();
+                    } catch {
+                        saida += "[ERRO NA CONTA]";
+                    }
+                }
+                saida += "\n";
+                continue;
+            }
+
+            return `<div class="cegonha-output">[COMANDO NÃO SUPORTADO: ${linha}]</div>`;
+        }
+
+        return `<div class="cegonha-output">${saida}</div>`;
+    });
+}
+
+window.addEventListener("load", () => {
+    document.querySelectorAll("div[id^='conteudo']").forEach(div => {
+        div.innerHTML = executarCegonhaEngine(div.innerHTML);
+    });
+});
+</script>
+
+</body>
+</html>
