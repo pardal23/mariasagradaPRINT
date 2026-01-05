@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cegonha OS Engine 2026</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #fafafa;
+}
+
+.cegonha-output {
+    background: #f0f0f0;
+    padding: 12px;
+    margin: 8px 0;
+    border-left: 4px solid #8B008B; /* Roxo da Cegonha */
+    font-family: monospace;
+    white-space: pre-wrap;
+    color: #8B008B; 
+    /* Aumento de 3px no volume da letra (padrão costuma ser 13px-14px) */
+    font-size: 17px; 
+}
+
+h1 { text-align:center; color:#8B008B; }
+h3 { text-align:center; color:#00008B; }
+
+div[id^="conteudo"] {
+    padding: 15px;
+    margin: auto;
+    max-width: 600px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Jogar há poesia.</h1>
+
+<div id="conteudo">
+<h3>Poesia da infância e Lógica</h3>
+</div>
+
+<div id="conteudo1">
+<cegonha>
+cegonha("Como foi a tua infância?<br>")
+cegonha("Simples e feliz<br>")
+ano = 1989
+idade = 2026 - ano
+cegonha("Idade: ")
+cegonha(idade)
+cegonha(" anos<br>")
+
+# TESTE DO IF/ELSE
+se (idade > 18) {
+    cegonha("Status: É maior de idade!<br>")
+} senao {
+    cegonha("Status: É uma criança!<br>")
+}
+</cegonha>
+</div>
+
+<div id="conteudo4">
+<cegonha>
+cegonha("Contagem regressiva:<br>")
+x = 3
+# TESTE DO WHILE (enquanto)
+enquanto (x > 0) {
+    cegonha("Faltam ")
+    cegonha(x)
+    cegonha("... ")
+    x = x - 1
+}
+cegonha("<br>Decolagem Cegonha! 🚀<br>")
+
+cegonha("<br>a cegonha tem: ")
+cegonha(2026 - 1964)
+cegonha(" anos")
+</cegonha>
+<p><iframe width="569" height="428" src="https://www.youtube.com/embed/8tE0GjSQpes?list=RD8tE0GjSQpes" title="ABBA - The Winner Takes It All (1980)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></p>
+</div>
+
+<script>
+/**
+ * MOTOR CEGONHA 2026 - Versão com IF, ELSE, WHILE
+ */
+function executarCegonhaEngine(html) {
+    return html.replace(/<cegonha>([\s\S]*?)<\/cegonha>/g, function (_, codigo) {
+        let vars = {};
+        let saida = "";
+
+        // Função para resolver expressões matemáticas e variáveis
+        function resolver(expr) {
+            let resolvida = expr;
+            for (let v in vars) {
+                const regex = new RegExp("\\b" + v + "\\b", "g");
+                resolvida = resolvida.replace(regex, vars[v]);
+            }
+            try {
+                return new Function("return (" + resolvida + ")")();
+            } catch { return expr; }
+        }
+
+        // Limpeza básica de comentários e espaços
+        let linhas = codigo.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "" && !l.startsWith("#"));
+        let i = 0;
+
+        while (i < linhas.length) {
+            let linha = linhas[i];
+
+            // 1. IF / SENAO (se / senao)
+            if (linha.startsWith("se ")) {
+                let condicao = linha.match(/\((.*)\)/)[1];
+                let blocoIf = [];
+                i++;
+                while (i < linhas.length && !linhas[i].startsWith("}")) {
+                    blocoIf.push(linhas[i]);
+                    i++;
+                }
+                
+                let executouIf = false;
+                if (resolver(condicao)) {
+                    processarBloco(blocoIf);
+                    executouIf = true;
+                }
+                
+                i++; // Pula o "}"
+                if (i < linhas.length && linhas[i].startsWith("senao")) {
+                    i++; // Pula o "senao {"
+                    let blocoElse = [];
+                    while (i < linhas.length && !linhas[i].startsWith("}")) {
+                        blocoElse.push(linhas[i]);
+                        i++;
+                    }
+                    if (!executouIf) processarBloco(blocoElse);
+                    i++; // Pula o "}"
+                }
+                continue;
+            }
+
+            // 2. WHILE (enquanto)
+            if (linha.startsWith("enquanto ")) {
+                let condicao = linha.match(/\((.*)\)/)[1];
+                let blocoWhile = [];
+                let inicioWhile = i;
+                i++;
+                while (i < linhas.length && !linhas[i].startsWith("}")) {
+                    blocoWhile.push(linhas[i]);
+                    i++;
+                }
+                
+                let seguranca = 0;
+                while (resolver(condicao) && seguranca < 100) {
+                    processarBloco(blocoWhile);
+                    seguranca++;
+                }
+                i++; 
+                continue;
+            }
+
+            // 3. ATRIBUIÇÃO E CEGONHA()
+            processarComando(linha);
+            i++;
+        }
+
+        function processarBloco(listaLinhas) {
+            listaLinhas.forEach(l => processarComando(l));
+        }
+
+        function processarComando(l) {
+            if (l.includes("=")) {
+                let [nome, valor] = l.split("=").map(s => s.trim());
+                vars[nome] = resolver(valor);
+            } else if (l.startsWith("cegonha(")) {
+                let conteudo = l.replace(/^cegonha\s*\(|\)$/g, "").trim();
+                if ((conteudo.startsWith('"') || conteudo.startsWith("'"))) {
+                    saida += conteudo.slice(1, -1);
+                } else {
+                    saida += resolver(conteudo);
+                }
+            }
+        }
+
+        return `<div class="cegonha-output">${saida}</div>`;
+    });
+}
+
+window.addEventListener("load", () => {
+    document.querySelectorAll("div[id^='conteudo']").forEach(div => {
+        div.innerHTML = executarCegonhaEngine(div.innerHTML);
+    });
+});
+</script>
+
+</body>
+</html>
